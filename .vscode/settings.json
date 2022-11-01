@@ -1,0 +1,45 @@
+{
+  "files.eol": "\n",
+  "files.associations": {
+    ".devcontainer/override.yml": "dockercompose",
+    ".ignore": "ignore",
+    "**/chart/templates/{**,*}.{yaml,yml,tpl}": "helm",
+    "**/chart/templates/NOTES.txt": "helm",
+    "**/chart/*.yaml": "yaml",
+  },
+  "files.insertFinalNewline": true,
+  //
+  // Formatting
+  // ------------------------------------------------------------------------
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+  },
+  "yaml.format.enable": true,
+  "yaml.schemas": {
+    "chart/values.schema.json": "chart/values.yaml",
+  },
+  "[helm]": {
+    "editor.formatOnSave": false,
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  //
+  // Linting
+  // ------------------------------------------------------------------------
+  // cspell
+  "cSpell.words": [
+    "clippy",
+    "cobertura",
+    "jsonpath",
+    "jsonschema",
+    "kkowa",
+    "kubernetes",
+    "PINENTRY",
+    "rstest",
+    "rustls",
+    "serde",
+    "tungstenite"
+  ],
+}

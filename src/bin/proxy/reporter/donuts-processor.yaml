@@ -1,0 +1,22 @@
+# Sample processor definition for testing.
+
+metadata:
+  name: Name
+  hostname: ^subdomain.domain.com$
+
+spec:
+  rules:
+    - name: Donuts
+      description: |
+        Extract names of donuts.
+
+      method: GET
+      path: ^/donuts$
+
+      request:
+        selectors: []
+
+      response:
+        selectors:
+          - key: extracted.donutNames
+            value: $[*].name

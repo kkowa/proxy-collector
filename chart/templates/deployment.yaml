@@ -1,0 +1,89 @@
+{{- with .Values.app.components.proxy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ $.Release.Namespace | quote }}
+  name: {{ include "app.components.proxy.fullname" $ }}
+  labels:
+    {{- include "app.components.proxy.labels" $ | nindent 4 }}
+
+  {{- with $.Values.common.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      {{- include "app.components.proxy.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      {{- with .annotations }}
+      annotations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "app.components.proxy.labels" $ | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "common.serviceAccount.name" $ }}
+      automountServiceAccountToken: {{ default false .automountServiceAccountToken }}
+      {{- with (default $.Values.global.imagePullSecrets $.Values.imagePullSecrets) }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- with .securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: proxy
+          image: {{ include "app.image" $ }}
+          imagePullPolicy: {{ $.Values.app.image.pullPolicy }}
+          {{- with .container.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.fullname" $ }}
+          ports:
+            - name: proxy
+              protocol: TCP
+              containerPort: 1080
+            - name: http
+              protocol: TCP
+              containerPort: 8080
+          livenessProbe:
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+            httpGet:
+              port: http
+              path: /ht
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            tcpSocket:
+              port: proxy
+          {{- with .container.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

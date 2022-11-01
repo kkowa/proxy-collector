@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kkowa-proxy
+version: "0.1.0"
+description: Application chart for proxy component of kkowa.
+type: application
+appVersion: "0.1.0"
