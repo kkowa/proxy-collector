@@ -80,6 +80,8 @@ FROM base AS development
 
 ARG APP_HOME
 
+ARG OPENAPI_GENERATOR_CLI_VERSION="6.2.1"
+
 # Original base directories for `rustup`, `cargo` from build stage
 ENV RUSTUP_HOME="/usr/local/rustup"
 ENV CARGO_HOME="/usr/local/cargo"
@@ -92,6 +94,7 @@ VOLUME ["${APP_HOME}/target"]
 # Install dev dependencies & utils
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
+    default-jre \
     git \
     gnupg2 \
     jq \
@@ -105,10 +108,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN pip3 install --no-cache-dir pre-commit
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --default-toolchain nightly --profile minimal \
-    && rustup component add rustfmt clippy llvm-tools-preview \
-    && chown -R worker:worker ${RUSTUP_HOME} ${CARGO_HOME}
+
+# Download openapi-generator-cli JAR
+RUN curl -fsSL -o /usr/local/bin/openapi-generator-cli "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+    && chmod +x /usr/local/bin/openapi-generator-cli
 
 # Download grcov binary
 RUN curl -fsSL https://github.com/mozilla/grcov/releases/download/v0.8.7/grcov-$(rustc -vV | sed -n 's|host: ||p').tar.bz2 \

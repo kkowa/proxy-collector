@@ -1,0 +1,14 @@
+.gitignore
+Cargo.toml
+src/apis/configuration.rs
+src/apis/documents_api.rs
+src/apis/mod.rs
+src/apis/users_api.rs
+src/lib.rs
+src/models/create_document.rs
+src/models/document.rs
+src/models/http_validation_error.rs
+src/models/location_inner.rs
+src/models/mod.rs
+src/models/user.rs
+src/models/validation_error.rs

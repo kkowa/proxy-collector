@@ -12,6 +12,18 @@ repos:
 
   - repo: local
     hooks:
+      - id: generate
+        name: Generate codes from schemas
+        language: system
+        files: |
+          (?x)(
+            ^idl/openapi/schemas/.*$
+          )
+        pass_filenames: false
+        entry: make generate
+
+  - repo: local
+    hooks:
       - id: cargo-fmt
         name: cargo fmt
         language: system

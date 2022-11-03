@@ -1,0 +1,4 @@
+docs/
+.travis.yml
+README.md
+git_push.sh

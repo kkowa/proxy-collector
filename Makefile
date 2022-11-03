@@ -12,11 +12,20 @@ SHELL := bash
 help: Makefile
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
+LOCBIN := ${PWD}/.bin
+PATH := ${PATH}:${LOCBIN}
+
 
 # =============================================================================
 # Common
 # =============================================================================
+OPENAPI_GENERATOR_CLI_VERSION := $(shell sed -nE 's/ARG OPENAPI_GENERATOR_CLI_VERSION=\"(.+)\"/\1/p' Dockerfile)
+
 install:  ## Install the app locally
+	! command -v openapi-generator-cli > /dev/null \
+		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+		&& chmod +x "${LOCBIN}/openapi-generator-cli"
+
 	cargo fetch
 .PHONY: install
 
@@ -36,6 +45,15 @@ run:  ## Run development server
 # =============================================================================
 ci: lint test scan  ## Run CI tasks
 .PHONY: ci
+
+generate:  ## Generate codes from schemas
+	openapi-generator-cli generate \
+		--input-spec idl/openapi/schemas/server/openapi.json \
+		--output _generated/server/openapi \
+		--generator-name rust \
+		--package-name server-openapi \
+		--additional-properties library=hyper
+.PHONY: generate
 
 format:  ## Run autoformatters
 	cargo fmt
