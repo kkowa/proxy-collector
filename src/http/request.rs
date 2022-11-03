@@ -44,16 +44,16 @@ impl Request {
     }
 }
 
-impl Into<hyper::Request<hyper::Body>> for Request {
-    fn into(self) -> hyper::Request<hyper::Body> {
+impl From<Request> for hyper::Request<hyper::Body> {
+    fn from(val: Request) -> Self {
         let mut builder = hyper::Request::builder()
-            .method(self.method)
-            .uri(self.uri)
-            .version(self.version);
+            .method(val.method)
+            .uri(val.uri)
+            .version(val.version);
 
-        *(builder.headers_mut().unwrap()) = self.headers;
+        *(builder.headers_mut().unwrap()) = val.headers;
 
-        builder.body(self.payload.into()).unwrap()
+        builder.body(val.payload.into()).unwrap()
     }
 }
 

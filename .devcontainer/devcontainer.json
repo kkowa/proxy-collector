@@ -1,14 +1,13 @@
 {
-  "name": "kkowa/apps/proxy",
+  "name": "kkowa/proxy",
   "dockerComposeFile": [
     "../docker-compose.yml",
     "./override.yml"
   ],
   "runServices": [
-    "proxy",
-    "echo"
+    "app"
   ],
-  "service": "proxy",
+  "service": "app",
   "overrideCommand": true,
   "initializeCommand": "sh ./.devcontainer/initializeCommand.sh",
   "onCreateCommand": "sh ./.devcontainer/onCreateCommand.sh",

@@ -1,6 +1,7 @@
 **
 
 # Allowed things
+!_generated/**
 !config/**
 !scripts/**
 !src/**

@@ -1,7 +1,7 @@
 # =============================================================================
 # Core: Build
 # =============================================================================
-ARG RUST_VERSION="1.63"
+ARG RUST_VERSION="1.64"
 
 # Application directory
 ARG APP_HOME="/var/app"
@@ -58,12 +58,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Change working directory
-WORKDIR ${APP_HOME}
+WORKDIR "${APP_HOME}"
 
 # Create app user and set as app owner
-RUN groupadd --gid ${GID} worker \
-    && useradd  --system --uid ${UID} --gid ${GID} --create-home worker \
-    && chown -R worker:worker ${APP_HOME} /home/worker
+RUN groupadd --gid "${GID}" worker \
+    && useradd  --system --uid "${UID}" --gid "${GID}" --create-home worker \
+    && chown -R worker:worker "${APP_HOME}" /home/worker
 
 EXPOSE 1080 8080
 
@@ -80,6 +80,10 @@ FROM base AS development
 
 ARG APP_HOME
 
+ARG OPENAPI_GENERATOR_CLI_VERSION="6.2.1"
+ARG GRCOV_VERSION="v0.8.13"
+ARG CARGO_WATCH_VERSION="v8.1.2"
+
 # Original base directories for `rustup`, `cargo` from build stage
 ENV RUSTUP_HOME="/usr/local/rustup"
 ENV CARGO_HOME="/usr/local/cargo"
@@ -92,6 +96,7 @@ VOLUME ["${APP_HOME}/target"]
 # Install dev dependencies & utils
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
+    default-jre \
     git \
     gnupg2 \
     jq \
@@ -105,33 +110,39 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN pip3 install --no-cache-dir pre-commit
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    | sh -s -- -y --default-toolchain nightly --profile minimal \
-    && rustup component add rustfmt clippy llvm-tools-preview \
-    && chown -R worker:worker ${RUSTUP_HOME} ${CARGO_HOME}
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
+    -y \
+    --default-toolchain nightly \
+    --profile minimal \
+    --component rustfmt \
+    --component clippy \
+    --component llvm-tools-preview \
+    && chown -R worker:worker "${RUSTUP_HOME}" "${CARGO_HOME}"
+
+# Download openapi-generator-cli JAR
+RUN curl -fsSL -o /usr/local/bin/openapi-generator-cli "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+    && chmod +x /usr/local/bin/openapi-generator-cli
 
 # Download grcov binary
-RUN curl -fsSL https://github.com/mozilla/grcov/releases/download/v0.8.7/grcov-$(rustc -vV | sed -n 's|host: ||p').tar.bz2 \
-    | tar --extract --bzip2 --directory ${CARGO_HOME}/bin
+RUN curl -fsSL "https://github.com/mozilla/grcov/releases/download/${GRCOV_VERSION}/grcov-$(rustc -vV | sed -n 's|host: ||p').tar.bz2" \
+    | tar --extract --bzip2 --directory "${CARGO_HOME}/bin"
 
 # Download cargo-watch binary
 RUN mkdir --parents /tmp/cargo-watch \
-    && curl -fsSL https://github.com/watchexec/cargo-watch/releases/download/v8.1.1/cargo-watch-v8.1.1-$(rustc -vV | sed -n 's|host: ||p').tar.xz \
+    && curl -fsSL "https://github.com/watchexec/cargo-watch/releases/download/${CARGO_WATCH_VERSION}/cargo-watch-${CARGO_WATCH_VERSION}-$(rustc -vV | sed -n 's|host: ||p').tar.xz" \
     | tar --extract --xz --directory /tmp/cargo-watch --strip-components 1 \
-    && mv /tmp/cargo-watch/cargo-watch ${CARGO_HOME}/bin \
+    && mv /tmp/cargo-watch/cargo-watch "${CARGO_HOME}/bin" \
     && rm -rf /tmp/cargo-watch
 
 # NOTE: Do not copy from build at base stage as it invalidates layers in development
 #       when new build created, increasing overall build time.
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/proxy /usr/local/bin/app
 
-# Copy script files implicitly
-COPY --chown=worker:worker --chmod=755 \
-    ./scripts/docker-entrypoint.sh ./scripts/start.sh \
-    /usr/local/bin/
+# Copy script files to executable path
+COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/
 
 # Create and grant permission for target directory as there is no original to preserve permission from.
-RUN mkdir ${APP_HOME}/target && chown worker:worker ${APP_HOME}/target
+RUN mkdir "${APP_HOME}/target" && chown worker:worker "${APP_HOME}/target"
 
 USER worker:worker
 
@@ -142,9 +153,7 @@ FROM base AS production
 
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/proxy /usr/local/bin/app
 
-# Copy script files implicitly
-COPY --chown=worker:worker --chmod=755 \
-    ./scripts/docker-entrypoint.sh ./scripts/start.sh \
-    /usr/local/bin/
+# Copy script files to executable path
+COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/
 
 USER worker:worker

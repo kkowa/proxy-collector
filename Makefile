@@ -12,11 +12,21 @@ SHELL := bash
 help: Makefile
 	@grep -E '(^[a-zA-Z_-]+:.*?##.*$$)|(^##)' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
 
+LOCBIN := ${PWD}/.bin
+PATH := ${PATH}:${LOCBIN}
+
 
 # =============================================================================
 # Common
 # =============================================================================
+OPENAPI_GENERATOR_CLI_VERSION := $(shell sed -nE 's/ARG OPENAPI_GENERATOR_CLI_VERSION=\"(.+)\"/\1/p' Dockerfile)
+
 install:  ## Install the app locally
+	! command -v openapi-generator-cli > /dev/null \
+		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+		&& chmod +x "${LOCBIN}/openapi-generator-cli"
+
+	cargo install cargo-watch grcov
 	cargo fetch
 .PHONY: install
 
@@ -37,6 +47,15 @@ run:  ## Run development server
 ci: lint test scan  ## Run CI tasks
 .PHONY: ci
 
+generate:  ## Generate codes from schemas
+	openapi-generator-cli generate \
+		--input-spec idl/openapi/schemas/server/openapi.json \
+		--output _generated/server/openapi \
+		--generator-name rust \
+		--package-name server-openapi \
+		--additional-properties library=hyper
+.PHONY: generate
+
 format:  ## Run autoformatters
 	cargo fmt
 	cargo clippy --fix --allow-dirty --allow-staged --allow-no-vcs
@@ -47,14 +66,32 @@ lint:  ## Run all linters
 	cargo clippy
 .PHONY: lint
 
+# https://doc.rust-lang.org/rustc/instrument-coverage.html
+# https://github.com/mozilla/grcov
 test:  ## Run tests
-	raw="$$(mktemp)"
-	reports="$${PWD}/.reports"
-	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' cargo test -- -Z unstable-options --format junit --report-time > $${raw}
-	mkdir -p $${reports}
-	split -l1 -d --additional-suffix='.xml' $${raw} "$${reports}/partial."
-	grcov --llvm --branch --ignore-not-existing --source-dir . --keep-only 'src/**/*.rs' --binary-path target/debug/ --output-type html --output-path .coverage/ .
-	grcov --llvm --branch --ignore-not-existing --source-dir . --keep-only 'src/**/*.rs' --binary-path target/debug/ --output-type cobertura --output-path coverage.xml .
+	mkdir -p .reports
+	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' \
+		cargo test --target-dir .coverage/ -- -Z unstable-options --format junit --report-time > .reports/raw
+
+	split -l1 -d --additional-suffix='.xml' .reports/raw ".reports/partial."
+	grcov . \
+		--llvm \
+		--branch \
+		--source-dir . \
+		--ignore-not-existing \
+		--keep-only 'src/**/*.rs' \
+		--binary-path .coverage/debug/ \
+		--output-type html \
+		--output-path .coverage/html/
+	grcov . \
+		--llvm \
+		--branch \
+		--source-dir . \
+		--ignore-not-existing \
+		--keep-only 'src/**/*.rs' \
+		--binary-path .coverage/debug/ \
+		--output-type cobertura \
+		--output-path coverage.xml
 .PHONY: test
 
 scan:  ## Run all scans

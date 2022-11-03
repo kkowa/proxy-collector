@@ -1,4 +1,8 @@
-exclude: ".git|.devcontainer|.vscode|idl|target"
+exclude: |
+  (?x)(
+    ^_generated/
+    | ^idl/
+  )
 default_stages: [commit]
 fail_fast: true
 repos:
@@ -7,16 +11,18 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-        exclude: ^chart/templates
-      - id: check-toml
 
-  - repo: https://github.com/sirosen/check-jsonschema
-    rev: 0.18.4
+  - repo: local
     hooks:
-      - id: check-jsonschema
-        files: chart/values.yaml
-        args: [--schemafile, ./chart/values.schema.json]
+      - id: generate
+        name: Generate codes from schemas
+        language: system
+        files: |
+          (?x)(
+            ^idl/openapi/schemas/.*$
+          )
+        pass_filenames: false
+        entry: make generate
 
   - repo: local
     hooks:

@@ -4,8 +4,8 @@ volumes:
   rstarget: {}
 
 services:
-  proxy:
-    image: localhost:5000/kkowa/apps/proxy:local
+  app:
+    image: localhost:5000/kkowa/proxy:local
     build:
       context: .
       dockerfile: ./Dockerfile

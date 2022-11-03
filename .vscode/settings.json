@@ -3,9 +3,6 @@
   "files.associations": {
     ".devcontainer/override.yml": "dockercompose",
     ".ignore": "ignore",
-    "**/chart/templates/{**,*}.{yaml,yml,tpl}": "helm",
-    "**/chart/templates/NOTES.txt": "helm",
-    "**/chart/*.yaml": "yaml",
   },
   "files.insertFinalNewline": true,
   //
@@ -16,12 +13,6 @@
     "source.organizeImports": true,
   },
   "yaml.format.enable": true,
-  "yaml.schemas": {
-    "chart/values.schema.json": "chart/values.yaml",
-  },
-  "[helm]": {
-    "editor.formatOnSave": false,
-  },
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
