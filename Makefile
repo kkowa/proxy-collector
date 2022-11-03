@@ -26,6 +26,7 @@ install:  ## Install the app locally
 		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
 		&& chmod +x "${LOCBIN}/openapi-generator-cli"
 
+	cargo install cargo-watch grcov
 	cargo fetch
 .PHONY: install
 
@@ -65,14 +66,32 @@ lint:  ## Run all linters
 	cargo clippy
 .PHONY: lint
 
+# https://doc.rust-lang.org/rustc/instrument-coverage.html
+# https://github.com/mozilla/grcov
 test:  ## Run tests
-	raw="$$(mktemp)"
-	reports="$${PWD}/.reports"
-	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' cargo test -- -Z unstable-options --format junit --report-time > $${raw}
-	mkdir -p $${reports}
-	split -l1 -d --additional-suffix='.xml' $${raw} "$${reports}/partial."
-	grcov --llvm --branch --ignore-not-existing --source-dir . --keep-only 'src/**/*.rs' --binary-path target/debug/ --output-type html --output-path .coverage/ .
-	grcov --llvm --branch --ignore-not-existing --source-dir . --keep-only 'src/**/*.rs' --binary-path target/debug/ --output-type cobertura --output-path coverage.xml .
+	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' \
+		cargo test --target-dir .coverage/ -- -Z unstable-options --format junit --report-time > .reports/raw
+
+	mkdir -p .reports
+	split -l1 -d --additional-suffix='.xml' .reports/raw ".reports/partial."
+	grcov . \
+		--llvm \
+		--branch \
+		--source-dir . \
+		--ignore-not-existing \
+		--keep-only 'src/**/*.rs' \
+		--binary-path .coverage/debug/ \
+		--output-type html \
+		--output-path .coverage/html/
+	grcov . \
+		--llvm \
+		--branch \
+		--source-dir . \
+		--ignore-not-existing \
+		--keep-only 'src/**/*.rs' \
+		--binary-path .coverage/debug/ \
+		--output-type cobertura \
+		--output-path coverage.xml
 .PHONY: test
 
 scan:  ## Run all scans
