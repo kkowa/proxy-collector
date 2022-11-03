@@ -69,10 +69,10 @@ lint:  ## Run all linters
 # https://doc.rust-lang.org/rustc/instrument-coverage.html
 # https://github.com/mozilla/grcov
 test:  ## Run tests
+	mkdir -p .reports
 	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' \
 		cargo test --target-dir .coverage/ -- -Z unstable-options --format junit --report-time > .reports/raw
 
-	mkdir -p .reports
 	split -l1 -d --additional-suffix='.xml' .reports/raw ".reports/partial."
 	grcov . \
 		--llvm \
