@@ -1,4 +1,8 @@
-exclude: ".git|.devcontainer|.vscode|idl|target"
+exclude: |
+  (?x)(
+    ^_generated/
+    | ^idl/
+  )
 default_stages: [commit]
 fail_fast: true
 repos:
@@ -7,8 +11,6 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-toml
 
   - repo: local
     hooks:

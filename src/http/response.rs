@@ -55,15 +55,15 @@ impl Response {
     }
 }
 
-impl Into<hyper::Response<hyper::Body>> for Response {
-    fn into(self) -> hyper::Response<hyper::Body> {
+impl From<Response> for hyper::Response<hyper::Body> {
+    fn from(val: Response) -> Self {
         let mut builder = hyper::Response::builder()
-            .status(self.status)
-            .version(self.version);
+            .status(val.status)
+            .version(val.version);
 
-        *(builder.headers_mut().unwrap()) = self.headers;
+        *(builder.headers_mut().unwrap()) = val.headers;
 
-        builder.body(self.payload.into()).unwrap()
+        builder.body(val.payload.into()).unwrap()
     }
 }
 
