@@ -1,4 +1,4 @@
-# kkowa/apps/proxy
+# kkowa/proxy
 
 Man-in-the-middle proxy component for data collection for kkowa. Currently this project has no name.
 
