@@ -50,7 +50,7 @@ ci: lint test scan  ## Run CI tasks
 generate:  ## Generate codes from schemas
 	openapi-generator-cli generate \
 		--input-spec idl/openapi/schemas/server/openapi.json \
-		--output _generated/server/openapi \
+		--output _generated/openapi/server \
 		--generator-name rust \
 		--package-name server-openapi \
 		--additional-properties library=hyper
