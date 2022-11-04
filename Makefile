@@ -22,6 +22,7 @@ PATH := ${PATH}:${LOCBIN}
 OPENAPI_GENERATOR_CLI_VERSION := $(shell sed -nE 's/ARG OPENAPI_GENERATOR_CLI_VERSION=\"(.+)\"/\1/p' Dockerfile)
 
 install:  ## Install the app locally
+	mkdir -p "${LOCBIN}"
 	! command -v openapi-generator-cli > /dev/null \
 		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli.jar" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
 		&& chmod +x "${LOCBIN}/openapi-generator-cli.jar"
