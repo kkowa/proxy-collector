@@ -23,8 +23,8 @@ OPENAPI_GENERATOR_CLI_VERSION := $(shell sed -nE 's/ARG OPENAPI_GENERATOR_CLI_VE
 
 install:  ## Install the app locally
 	! command -v openapi-generator-cli > /dev/null \
-		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
-		&& chmod +x "${LOCBIN}/openapi-generator-cli"
+		&& curl -fsSL -o "${LOCBIN}/openapi-generator-cli.jar" "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+		&& chmod +x "${LOCBIN}/openapi-generator-cli.jar"
 
 	cargo install cargo-watch grcov
 	cargo fetch
@@ -48,7 +48,7 @@ ci: lint test scan  ## Run CI tasks
 .PHONY: ci
 
 generate:  ## Generate codes from schemas
-	openapi-generator-cli generate \
+	java -jar "$$(which openapi-generator-cli.jar)" generate \
 		--input-spec idl/openapi/schemas/server/openapi.json \
 		--output _generated/openapi/server \
 		--generator-name rust \

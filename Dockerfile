@@ -120,8 +120,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
     && chown -R worker:worker "${RUSTUP_HOME}" "${CARGO_HOME}"
 
 # Download openapi-generator-cli JAR
-RUN curl -fsSL -o /usr/local/bin/openapi-generator-cli "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
-    && chmod +x /usr/local/bin/openapi-generator-cli
+RUN curl -fsSL -o /usr/local/bin/openapi-generator-cli.jar "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_CLI_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_CLI_VERSION}.jar" \
+    && chmod +x /usr/local/bin/openapi-generator-cli.jar
 
 # Download grcov binary
 RUN curl -fsSL "https://github.com/mozilla/grcov/releases/download/${GRCOV_VERSION}/grcov-$(rustc -vV | sed -n 's|host: ||p').tar.bz2" \
