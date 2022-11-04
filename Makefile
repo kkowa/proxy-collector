@@ -50,7 +50,7 @@ ci: lint test scan  ## Run CI tasks
 
 generate:  ## Generate codes from schemas
 	java -jar "$$(which openapi-generator-cli.jar)" generate \
-		--input-spec idl/openapi/schemas/server/openapi.json \
+		--input-spec idl/openapi/schemas/server.openapi.json \
 		--output _generated/openapi/server \
 		--generator-name rust \
 		--package-name server-openapi \
