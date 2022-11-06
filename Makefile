@@ -70,7 +70,7 @@ lint:  ## Run all linters
 # https://doc.rust-lang.org/rustc/instrument-coverage.html
 # https://github.com/mozilla/grcov
 test:  ## Run tests
-	mkdir -p .report
+	mkdir -p .report .coverage
 	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%p-%m.profraw' \
 		cargo test --workspace --target-dir target/.coverage -- -Z unstable-options --format junit --report-time > .report/raw
 
