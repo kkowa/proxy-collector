@@ -54,7 +54,7 @@ generate:  ## Generate codes from schemas
 		--output _generated/openapi/server \
 		--generator-name rust \
 		--package-name server-openapi \
-		--additional-properties library=hyper
+		--library reqwest
 .PHONY: generate
 
 format:  ## Run autoformatters
