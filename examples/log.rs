@@ -1,8 +1,8 @@
 use std::net::SocketAddr;
 
 use async_trait::async_trait;
-use kkowa_proxy::{http::{Request, Response},
-                  proxy::{Flow, Forward, Handler, Reverse}};
+use lib::{http::{Request, Response},
+          proxy::{Flow, Forward, Handler, Reverse}};
 use tracing::{debug, warn};
 
 #[derive(Debug)]
@@ -38,7 +38,7 @@ async fn main() {
     let addr: SocketAddr = "0.0.0.0:8080".parse().expect("failed to parse address");
 
     warn!("Listening on {}", addr);
-    let app = kkowa_proxy::Proxy::new(
+    let app = lib::Proxy::new(
         "logging-proxy",
         hyper::Client::default(),
         vec![],

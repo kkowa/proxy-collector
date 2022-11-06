@@ -6,7 +6,7 @@ mod reporter;
 use std::{net::SocketAddr, path::PathBuf};
 
 use clap::Parser;
-use kkowa_proxy::{http::Uri, Proxy, Web};
+use lib::{http::Uri, Proxy, Web};
 use tracing::{debug, error, info, warn, Level};
 
 use self::reporter::{Processor, Reporter};

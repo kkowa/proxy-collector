@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use super::{HeaderName, HeaderValue, Headers, Payload, Request, StatusCode, Version};
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -38,20 +36,22 @@ impl Response {
         Builder::new()
     }
 
-    pub async fn from<R>(resp: hyper::Response<hyper::body::Body>, request: R) -> Result<Self>
+    pub async fn from<R>(resp: hyper::Response<hyper::body::Body>, request: R) -> Self
     where
         R: Into<Request>,
     {
         let (parts, body) = resp.into_parts();
-        let bytes = hyper::body::to_bytes(body).await?;
+        let bytes = hyper::body::to_bytes(body)
+            .await
+            .expect("failed to read bytes");
 
-        Ok(Self::new(
+        Self::new(
             parts.status,
             parts.version,
             parts.headers,
             bytes,
             request.into(),
-        ))
+        )
     }
 }
 
@@ -134,7 +134,7 @@ mod tests {
     #[tokio::test]
     async fn response_from_hyper() -> Result<()> {
         let hyper_resp = hyper::Response::new(hyper::Body::from("Good Evening"));
-        let resp = Response::from(hyper_resp, Request::default()).await?;
+        let resp = Response::from(hyper_resp, Request::default()).await;
 
         assert_eq!(resp.status, StatusCode::OK);
         assert_eq!(resp.version, Version::HTTP_11);

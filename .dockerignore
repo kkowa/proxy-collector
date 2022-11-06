@@ -3,6 +3,7 @@
 # Allowed things
 !_generated/**
 !config/**
+!lib/**
 !scripts/**
 !src/**
 !Cargo.lock
