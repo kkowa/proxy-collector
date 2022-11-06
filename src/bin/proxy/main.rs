@@ -119,6 +119,8 @@ async fn main() {
         .map(|p| Processor::from_file(p).expect("failed to load file {path} as processor"))
         .collect();
 
+    debug!("loaded processors: {processors:?}");
+
     // Run app
     let proxy_addr: SocketAddr = format!("{}:{}", config.host, config.port)
         .parse()
@@ -137,7 +139,7 @@ async fn main() {
                 Uri::builder()
                     .scheme(u.scheme_str().unwrap())
                     .authority(u.authority().unwrap().to_string())
-                    .path_and_query("/api/users/me")
+                    .path_and_query("")
                     .build()
                     .unwrap()
             }),
@@ -147,7 +149,7 @@ async fn main() {
                 Uri::builder()
                     .scheme(u.scheme_str().unwrap())
                     .authority(u.authority().unwrap().to_string())
-                    .path_and_query("/api/documents")
+                    .path_and_query("")
                     .build()
                     .unwrap()
             }),

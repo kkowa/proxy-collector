@@ -3,23 +3,18 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use kkowa_proxy::{auth::{Authenticator, Credentials},
-                  http::{header, Method, Uri}};
+                  http::Uri};
+use server_openapi::apis::{configuration::Configuration, users_api::users_me_api_users_me_get};
 use tracing::{debug, trace};
-
-type Client = hyper::Client<hyper::client::HttpConnector>;
 
 #[derive(Debug)]
 pub struct ServerAuth {
     uri: Option<Uri>,
-    client: Client,
 }
 
 impl ServerAuth {
     pub fn new(uri: Option<Uri>) -> Self {
-        Self {
-            uri,
-            client: Client::default(),
-        }
+        Self { uri }
     }
 }
 
@@ -41,24 +36,22 @@ impl Authenticator for ServerAuth {
                 });
             }
 
-            let req = hyper::Request::builder()
-                .method(Method::GET)
-                .uri(u)
-                .header(
-                    header::AUTHORIZATION,
-                    format!("Bearer {token}", token = credentials.credentials()),
-                )
-                .body(hyper::Body::empty())
-                .unwrap();
+            let cfg = Configuration {
+                base_path: u.to_string().trim_end_matches('/').to_string(),
+                bearer_access_token: Some(credentials.credentials().to_string()),
+                ..Configuration::default()
+            };
 
-            if let Ok(resp) = self.client.request(req).await {
-                let status = resp.status();
-                debug!("auth server responded with status code {status}",);
-
-                if status.is_success() {
+            let result = users_me_api_users_me_get(&cfg).await;
+            match result {
+                Ok(user) => {
+                    debug!("authentication succeed, user {}", user.username);
                     return Ok(());
                 }
-            };
+                Err(err) => {
+                    debug!("auth failure: {err:#?}")
+                }
+            }
         }
 
         Err(kkowa_proxy::auth::Error::NotAuthenticated)
