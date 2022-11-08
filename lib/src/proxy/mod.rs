@@ -176,7 +176,7 @@ async fn proxy(
 
     // Authenticate and authorize proxy user.
     if !flow.app().auths.is_empty() {
-        match Credentials::get_from_request(&req) {
+        match Credentials::try_from(&req) {
             Ok(credentials) => {
                 for ab in flow.app().auths.iter() {
                     match ab.authenticate(&credentials).await {

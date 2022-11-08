@@ -38,11 +38,17 @@ impl Credentials {
             credentials: credentials.as_ref().to_string(),
         }
     }
+}
 
-    /// Create object from request's proxy authorization header.
-    pub fn get_from_request(request: &Request) -> Result<Self, Error> {
+impl TryFrom<&Request> for Credentials {
+    type Error = Error;
+
+    /// Extract credentials from proxy authorization header in request.
+    fn try_from(request: &Request) -> Result<Self, Self::Error> {
         match request.headers.get(header::PROXY_AUTHORIZATION) {
             Some(value) => {
+                // Split scheme and credentials fields
+                // NOTE: No base64 handling here (yet?)
                 let arr: [&str; 2] = value
                     .to_str()
                     .expect("failed to convert header value to string")
@@ -87,7 +93,7 @@ mod tests {
     use crate::http::{header, Request};
 
     #[test]
-    fn get_from_request() -> Result<()> {
+    fn try_from() -> Result<()> {
         let req = Request::builder()
             .header(
                 header::PROXY_AUTHORIZATION,
@@ -97,7 +103,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            Credentials::get_from_request(&req)?,
+            Credentials::try_from(&req)?,
             Credentials::new("Basic", "dXNlcm5hbWU6cGFzc3dvcmQ=")
         );
 
@@ -105,10 +111,8 @@ mod tests {
     }
 
     #[test]
-    fn get_from_request_header_not_set() -> Result<()> {
-        let err = Credentials::get_from_request(&Request::default())
-            .err()
-            .unwrap();
+    fn try_from_header_not_set() -> Result<()> {
+        let err = Credentials::try_from(&Request::default()).err().unwrap();
 
         assert!(matches!(err, super::Error::MissingHeader));
 
@@ -116,12 +120,12 @@ mod tests {
     }
 
     #[test]
-    fn get_from_request_fields_lacking() -> Result<()> {
+    fn try_from_fields_lacking() -> Result<()> {
         let req = Request::builder()
             .header(header::PROXY_AUTHORIZATION, "Scheme".parse().unwrap())
             .build()
             .unwrap();
-        let err = Credentials::get_from_request(&req).err().unwrap();
+        let err = Credentials::try_from(&req).err().unwrap();
 
         assert!(matches!(err, super::Error::InvalidFormat { n: 1, .. }));
 
@@ -129,7 +133,7 @@ mod tests {
     }
 
     #[test]
-    fn get_from_request_too_many_fields() -> Result<()> {
+    fn try_from_too_many_fields() -> Result<()> {
         let req = Request::builder()
             .header(
                 header::PROXY_AUTHORIZATION,
@@ -137,7 +141,7 @@ mod tests {
             )
             .build()
             .unwrap();
-        let err = Credentials::get_from_request(&req).err().unwrap();
+        let err = Credentials::try_from(&req).err().unwrap();
 
         assert!(matches!(err, super::Error::InvalidFormat { n: 3, .. }));
 
