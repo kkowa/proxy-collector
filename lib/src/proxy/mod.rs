@@ -6,6 +6,7 @@ pub mod handler;
 use std::{convert::Infallible, fmt::Debug, net::SocketAddr, sync::atomic::AtomicU64};
 
 use async_std::sync::Arc;
+use derive_builder::Builder;
 use hyper::{service::{make_service_fn, service_fn},
             upgrade::Upgraded};
 use tokio::net::TcpStream;
@@ -20,9 +21,12 @@ use crate::{auth::{Authenticator, Credentials},
 type Client = hyper::Client<hyper::client::HttpConnector>;
 
 /// Main proxy application.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Builder)]
+#[builder(default)]
 pub struct Proxy {
+    #[builder(default = r#""proxy""#)]
     id: &'static str,
+
     counter: Arc<AtomicU64>,
     client: Client,
     auths: Arc<Vec<Box<dyn Authenticator + Send + Sync>>>,
@@ -45,8 +49,8 @@ impl Proxy {
         }
     }
 
-    pub fn builder() -> Builder {
-        Builder::new()
+    pub fn builder() -> ProxyBuilder {
+        ProxyBuilder::default()
     }
 
     pub async fn run(&self, addr: &SocketAddr) -> Result<(), hyper::Error> {
@@ -75,49 +79,6 @@ impl Proxy {
 
     pub(crate) fn flow(&self, client: SocketAddr) -> Flow {
         Flow::new(self.clone(), client)
-    }
-}
-
-#[derive(Debug, Default)]
-pub struct Builder {
-    id: &'static str,
-    client: Client,
-    auths: Vec<Box<dyn Authenticator + Send + Sync>>,
-    handlers: Vec<Box<dyn Handler + Send + Sync>>,
-}
-
-impl Builder {
-    pub fn new() -> Self {
-        Self {
-            id: "proxy",
-            client: Client::default(),
-            auths: vec![],
-            handlers: vec![],
-        }
-    }
-
-    pub fn id(mut self, id: &'static str) -> Self {
-        self.id = id;
-        self
-    }
-
-    pub fn client(mut self, client: Client) -> Self {
-        self.client = client;
-        self
-    }
-
-    pub fn auths(mut self, auths: Vec<Box<dyn Authenticator + Send + Sync>>) -> Self {
-        self.auths = auths;
-        self
-    }
-
-    pub fn handlers(mut self, handlers: Vec<Box<dyn Handler + Send + Sync>>) -> Self {
-        self.handlers = handlers;
-        self
-    }
-
-    pub fn build(self) -> Proxy {
-        Proxy::new(self.id, self.client, self.auths, self.handlers)
     }
 }
 

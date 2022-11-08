@@ -36,7 +36,7 @@ fn proxy() -> String {
 
     // Run server
     task::spawn(async move {
-        let proxy = Proxy::builder().build();
+        let proxy = Proxy::builder().build().unwrap();
         proxy.run(&addr).await.unwrap()
     });
 

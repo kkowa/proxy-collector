@@ -202,12 +202,14 @@ mod tests {
         let processor = Processor::from_str(include_str!("donuts-processor.yaml")).unwrap();
         let req = Request::builder()
             .uri(Uri::from_static("http://subdomain.domain.com/donuts"))
-            .build();
+            .build()
+            .unwrap();
 
         let resp = Response::builder()
             .payload(include_bytes!("./donuts.json").to_vec())
             .request(req)
-            .build();
+            .build()
+            .unwrap();
 
         let document = processor.process(&resp).unwrap();
 

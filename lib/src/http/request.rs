@@ -1,11 +1,17 @@
+use derive_builder::Builder;
+
 use super::{HeaderName, HeaderValue, Headers, Method, Payload, Uri, Version};
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Builder)]
+#[builder(default)]
 pub struct Request {
     pub method: Method,
     pub uri: Uri,
     pub version: Version,
+
+    #[builder(setter(custom))]
     pub headers: Headers,
+
     pub payload: Payload,
 }
 
@@ -24,8 +30,8 @@ impl Request {
         }
     }
 
-    pub fn builder() -> Builder {
-        Builder::new()
+    pub fn builder() -> RequestBuilder {
+        RequestBuilder::default()
     }
 
     pub async fn from(req: hyper::Request<hyper::Body>) -> Self {
@@ -51,58 +57,19 @@ impl From<Request> for hyper::Request<hyper::Body> {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct Builder {
-    pub method: Method,
-    pub uri: Uri,
-    pub version: Version,
-    pub headers: Headers,
-    pub payload: Payload,
-}
-
-impl Builder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn method(mut self, method: Method) -> Self {
-        self.method = method;
+impl RequestBuilder {
+    pub fn header(&mut self, key: HeaderName, value: HeaderValue) -> &mut Self {
+        self.headers
+            .get_or_insert_with(Headers::default)
+            .insert(key, value);
         self
     }
 
-    pub fn uri(mut self, uri: Uri) -> Self {
-        self.uri = uri;
+    pub fn headers(&mut self, headers: Headers) -> &mut Self {
+        self.headers
+            .get_or_insert_with(Headers::default)
+            .extend(headers);
         self
-    }
-
-    pub fn version(mut self, version: Version) -> Self {
-        self.version = version;
-        self
-    }
-
-    pub fn header(mut self, key: HeaderName, value: HeaderValue) -> Self {
-        self.headers.insert(key, value);
-        self
-    }
-
-    pub fn headers(mut self, headers: Headers) -> Self {
-        self.headers.extend(headers);
-        self
-    }
-
-    pub fn payload(mut self, payload: Payload) -> Self {
-        self.payload = payload;
-        self
-    }
-
-    pub fn build(self) -> Request {
-        Request::new(
-            self.method,
-            self.uri,
-            self.version,
-            self.headers,
-            self.payload,
-        )
     }
 }
 

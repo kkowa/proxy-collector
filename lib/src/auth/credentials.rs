@@ -93,7 +93,8 @@ mod tests {
                 header::PROXY_AUTHORIZATION,
                 "Basic dXNlcm5hbWU6cGFzc3dvcmQ=".parse().unwrap(),
             )
-            .build();
+            .build()
+            .unwrap();
 
         assert_eq!(
             Credentials::get_from_request(&req)?,
@@ -118,7 +119,8 @@ mod tests {
     fn get_from_request_fields_lacking() -> Result<()> {
         let req = Request::builder()
             .header(header::PROXY_AUTHORIZATION, "Scheme".parse().unwrap())
-            .build();
+            .build()
+            .unwrap();
         let err = Credentials::get_from_request(&req).err().unwrap();
 
         assert!(matches!(err, super::Error::InvalidFormat { n: 1, .. }));
@@ -133,7 +135,8 @@ mod tests {
                 header::PROXY_AUTHORIZATION,
                 "Scheme Value Extra".parse().unwrap(),
             )
-            .build();
+            .build()
+            .unwrap();
         let err = Credentials::get_from_request(&req).err().unwrap();
 
         assert!(matches!(err, super::Error::InvalidFormat { n: 3, .. }));
