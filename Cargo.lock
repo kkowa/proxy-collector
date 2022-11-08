@@ -1251,24 +1251,20 @@ name = "lib"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "async-http-proxy",
  "async-std",
  "async-trait",
  "base64",
  "derive_builder",
- "futures",
  "getset",
  "http",
  "httpmock",
  "hyper",
  "lazy_static",
  "prometheus",
- "reqwest",
  "rstest",
  "rustls",
  "thiserror",
  "tokio",
- "tokio-tungstenite",
  "tracing",
 ]
 
