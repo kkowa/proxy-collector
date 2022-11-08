@@ -5,7 +5,7 @@ use std::{path::Path, str::FromStr};
 use anyhow::{Error, Result};
 use http::Method;
 use json_dotpath::DotPaths;
-use kkowa_proxy::http::Response;
+use lib::http::Response;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -175,7 +175,7 @@ mod tests {
     use std::str::FromStr;
 
     use http::Uri;
-    use kkowa_proxy::http::{Request, Response};
+    use lib::http::{Request, Response};
     use serde_json::json;
 
     use super::{Processor, Selector};

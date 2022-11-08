@@ -3,8 +3,8 @@
 mod processor;
 
 use async_trait::async_trait;
-use kkowa_proxy::{http::{Response, Uri},
-                  proxy::{Flow, Handler, Reverse}};
+use lib::{http::{Response, Uri},
+          proxy::{Flow, Handler, Reverse}};
 use serde_json::json;
 use server_openapi::{apis::{configuration::Configuration,
                             documents_api::create_documents_api_documents_post},

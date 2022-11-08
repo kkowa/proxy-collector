@@ -211,9 +211,7 @@ async fn proxy(
     req.uri().host().expect("URI has no host part");
 
     // Convert request into crate-specific one
-    let mut req = Request::from(req)
-        .await
-        .expect("failed to convert hyper request");
+    let mut req = Request::from(req).await;
 
     // Authenticate and authorize proxy user.
     if !flow.app().auths.is_empty() {
@@ -269,9 +267,7 @@ async fn proxy(
 
     // Forward request to server
     let resp = flow.app().client.request(req.clone().into()).await?;
-    let mut resp = Response::from(resp, req)
-        .await
-        .expect("failed to convert hyper response");
+    let mut resp = Response::from(resp, req).await;
 
     // Call handlers on response
     for h in flow.app().handlers.iter() {

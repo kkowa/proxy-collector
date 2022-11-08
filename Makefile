@@ -70,29 +70,37 @@ lint:  ## Run all linters
 # https://doc.rust-lang.org/rustc/instrument-coverage.html
 # https://github.com/mozilla/grcov
 test:  ## Run tests
-	mkdir -p .reports
-	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%m.profraw' \
-		cargo test --target-dir .coverage/ -- -Z unstable-options --format junit --report-time > .reports/raw
+	mkdir -p .report .coverage
+	RUSTFLAGS='-C instrument-coverage' LLVM_PROFILE_FILE='.profile/proxy-%p-%m.profraw' \
+		cargo test --workspace --target-dir target/.coverage -- -Z unstable-options --format junit --report-time > .report/raw
 
-	split -l1 -d --additional-suffix='.xml' .reports/raw ".reports/partial."
+	split -l1 -d --additional-suffix=.xml .report/raw .report/partial.
+
+	if [ -z "$${CI:-}" ]; then
+		echo 'Generating coverage report in HTML format'
+		grcov . \
+			--llvm \
+			--branch \
+			--source-dir . \
+			--ignore-not-existing \
+			--ignore 'target/*' \
+			--ignore '_generated/*' \
+			--binary-path target/.coverage/debug/ \
+			--output-type html \
+			--output-path .coverage/html/
+	fi
+
+	echo 'Generating coverage report in cobertura XML format'
 	grcov . \
 		--llvm \
 		--branch \
 		--source-dir . \
 		--ignore-not-existing \
-		--keep-only 'src/**/*.rs' \
-		--binary-path .coverage/debug/ \
-		--output-type html \
-		--output-path .coverage/html/
-	grcov . \
-		--llvm \
-		--branch \
-		--source-dir . \
-		--ignore-not-existing \
-		--keep-only 'src/**/*.rs' \
-		--binary-path .coverage/debug/ \
+		--ignore 'target/*' \
+		--ignore '_generated/*' \
+		--binary-path target/.coverage/debug/ \
 		--output-type cobertura \
-		--output-path coverage.xml
+		--output-path .coverage/coverage.xml
 .PHONY: test
 
 scan:  ## Run all scans
@@ -104,6 +112,6 @@ scan:  ## Run all scans
 # Handy Scripts
 # =============================================================================
 clean:  ## Remove temporary files
-	rm --recursive --force .coverage/ .profile/ .reports/ coverage.xml
+	rm --recursive --force .coverage/ .profile/ .report/
 	find . -path '*.log*' -delete
 .PHONY: clean

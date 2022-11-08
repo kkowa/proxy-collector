@@ -1,3 +1,4 @@
 group_imports = "StdExternalCrate"
 imports_granularity = "Crate"
 imports_indent = "Visual"
+ignore = ["_generated/"]

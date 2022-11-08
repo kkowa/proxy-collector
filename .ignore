@@ -4,6 +4,6 @@
 # Things to watch changes
 !src/**
 !tests/**
-.ignore
+!.ignore
 !Cargo.lock
 !Cargo.toml

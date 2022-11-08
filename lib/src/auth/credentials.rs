@@ -1,6 +1,5 @@
 use std::fmt::Debug;
 
-use anyhow::Result;
 use thiserror::Error;
 use tracing::{debug, trace};
 
@@ -14,8 +13,8 @@ pub enum Error {
     #[error("failed to parse provided data into desired format")]
     InvalidFormat { n: usize },
 
-    #[error(transparent)]
-    Unexpected(#[from] anyhow::Error),
+    #[error("unknown error")]
+    Unknown,
 }
 
 // TODO: Implement its own Debug / Fmt traits to mask credentials for security
@@ -45,11 +44,12 @@ impl Credentials {
     }
 
     /// Create object from request's proxy authorization header.
-    pub fn get_from_request(request: &Request) -> Result<Self> {
+    pub fn get_from_request(request: &Request) -> Result<Self, Error> {
         match request.headers.get(header::PROXY_AUTHORIZATION) {
             Some(value) => {
                 let arr: [&str; 2] = value
-                    .to_str()?
+                    .to_str()
+                    .expect("failed to convert header value to string")
                     .split_whitespace()
                     .collect::<Vec<&str>>()
                     .try_into()
@@ -77,7 +77,7 @@ impl Credentials {
                     );
                 };
 
-                Err(Error::MissingHeader.into())
+                Err(Error::MissingHeader)
             }
         }
     }
@@ -113,10 +113,7 @@ mod tests {
             .err()
             .unwrap();
 
-        assert!(matches!(
-            err.downcast_ref::<super::Error>(),
-            Some(super::Error::MissingHeader)
-        ));
+        assert!(matches!(err, super::Error::MissingHeader));
 
         Ok(())
     }
@@ -128,10 +125,7 @@ mod tests {
             .build();
         let err = Credentials::get_from_request(&req).err().unwrap();
 
-        assert!(matches!(
-            err.downcast_ref::<super::Error>(),
-            Some(super::Error::InvalidFormat { n: 1, .. })
-        ));
+        assert!(matches!(err, super::Error::InvalidFormat { n: 1, .. }));
 
         Ok(())
     }
@@ -146,10 +140,7 @@ mod tests {
             .build();
         let err = Credentials::get_from_request(&req).err().unwrap();
 
-        assert!(matches!(
-            err.downcast_ref::<super::Error>(),
-            Some(super::Error::InvalidFormat { n: 3, .. })
-        ));
+        assert!(matches!(err, super::Error::InvalidFormat { n: 3, .. }));
 
         Ok(())
     }

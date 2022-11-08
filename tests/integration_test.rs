@@ -2,8 +2,8 @@ use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::{Error, Result};
 use futures::{SinkExt, StreamExt};
-use kkowa_proxy::Proxy;
 use lazy_static::lazy_static;
+use lib::Proxy;
 use portpicker::pick_unused_port;
 use reqwest::{self, Client, StatusCode};
 use rstest::*;
