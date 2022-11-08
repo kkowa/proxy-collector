@@ -7,14 +7,15 @@ edition = "2021"
 async-std = "1.12"
 async-trait = "0.1"
 base64 = "0.13"
+getset = "0.1"
 http = "0.2"
 hyper = { version = "0.14", features = ["full"] }
 lazy_static = "1.4"
 prometheus = "0.13"                                                   # TODO: Replace to metrics
 rustls = { version = "0.20", features = ["dangerous_configuration"] }
+thiserror = "1.0"
 tokio = { version = "1.20", features = ["full"] }
 tracing = "0.1"
-thiserror = "1.0"
 
 [dev-dependencies]
 anyhow = "*"

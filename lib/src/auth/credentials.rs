@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
+use getset::Getters;
 use thiserror::Error;
 use tracing::{debug, trace};
 
@@ -18,9 +19,12 @@ pub enum Error {
 }
 
 // TODO: Implement its own Debug / Fmt traits to mask credentials for security
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Getters)]
 pub struct Credentials {
+    #[getset(get = "pub")]
     scheme: String,
+
+    #[getset(get = "pub")]
     credentials: String,
 }
 
@@ -33,14 +37,6 @@ impl Credentials {
             scheme: scheme.as_ref().to_string(),
             credentials: credentials.as_ref().to_string(),
         }
-    }
-
-    pub fn scheme(&self) -> &str {
-        &self.scheme
-    }
-
-    pub fn credentials(&self) -> &str {
-        &self.credentials
     }
 
     /// Create object from request's proxy authorization header.
