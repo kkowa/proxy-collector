@@ -1,9 +1,0 @@
-# Ignore file for `cargo-watch`
-**
-
-# Things to watch changes
-!src/**
-!tests/**
-!.ignore
-!Cargo.lock
-!Cargo.toml
