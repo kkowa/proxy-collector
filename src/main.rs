@@ -1,7 +1,7 @@
 //! Main binary for use by kkowa application system.
 
 mod auth;
-mod reporter;
+mod collector;
 
 use std::{net::SocketAddr, path::PathBuf};
 
@@ -9,7 +9,7 @@ use clap::Parser;
 use lib::{http::Uri, Proxy, Web};
 use tracing::{debug, error, info, warn, Level};
 
-use self::reporter::{Processor, Reporter};
+use self::collector::{Collector, Processor};
 
 macro_rules! arg_env {
     ($name:literal) => {
@@ -144,7 +144,7 @@ async fn main() {
                     .unwrap()
             }),
         ))],
-        vec![Box::new(Reporter::new(
+        vec![Box::new(Collector::new(
             config.server.clone().map(|u| {
                 Uri::builder()
                     .scheme(u.scheme_str().unwrap())

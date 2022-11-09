@@ -13,21 +13,21 @@ use tracing::debug;
 
 pub use self::processor::Processor;
 
-/// Handler for reporting processed documents to remote server.
+/// Handler for collecting processed documents and uploading to remote server.
 #[derive(Debug)]
-pub struct Reporter {
+pub struct Collector {
     /// API endpoint URL to POST docs.
-    report_to: Option<Uri>,
+    upload_to: Option<Uri>,
 
     /// Document processor.
     processors: Vec<Processor>,
 }
 
-impl Reporter {
+impl Collector {
     /// Create new handler.
-    pub fn new(report_to: Option<Uri>, processors: Vec<Processor>) -> Self {
+    pub fn new(upload_to: Option<Uri>, processors: Vec<Processor>) -> Self {
         Self {
-            report_to,
+            upload_to,
             processors,
         }
     }
@@ -53,9 +53,9 @@ impl Reporter {
 }
 
 #[async_trait]
-impl Handler for Reporter {
+impl Handler for Collector {
     async fn on_response(&self, flow: &Flow, resp: Response) -> Reverse {
-        if let Some(u) = &self.report_to {
+        if let Some(u) = &self.upload_to {
             let u = u.clone();
             if let Some(credentials) = flow.auth() {
                 let credentials = credentials.clone();
