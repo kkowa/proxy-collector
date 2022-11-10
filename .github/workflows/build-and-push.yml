@@ -112,6 +112,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build app image
+        id: build
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -121,3 +122,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: ${{ github.event_name != 'pull_request' }}
+
+      - name: Test image structure
+        uses: brpaz/structure-tests-action@v1
+        with:
+          image: ${{ steps.build.outputs.imageid }}
+          configFile: container-structure-tests.yaml
