@@ -10,8 +10,6 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: development
-    depends_on:
-      - echo
     volumes:
       - .:/var/app:z
       - rstarget:/var/app/target
@@ -23,12 +21,3 @@ services:
       - 1080:1080
       - 8080:8080
     command: cargo watch --no-gitignore --why --exec "run -- --verbosity debug"
-
-  echo:
-    image: inanimate/echo-server@sha256:f988e7b6320f65548a418eb79a7ff26faf1a4a0d6d59f63bc8c3fc116b2dcff1 # latest
-    environment:
-      PORT: 10080
-      SSLPORT: 10443
-    ports:
-      - 10080:10080
-      - 10443:10443
