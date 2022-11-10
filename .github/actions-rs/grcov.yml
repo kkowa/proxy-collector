@@ -5,6 +5,7 @@ output-type: cobertura
 output-path: ./coverage.xml
 prefix-dir: /home/user/build/
 ignore:
-  - "/*"
-  - "C:/*"
-  - "../*"
+  - /*
+  - C:/*
+  - ../*
+  - _generated/*
