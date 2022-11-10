@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - update-ci # TODO: For CI update; remove before merge
     tags:
       - v*
     paths-ignore:
