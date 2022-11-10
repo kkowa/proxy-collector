@@ -53,7 +53,7 @@ jobs:
 
       - name: Generate coverage report
         id: coverage
-        uses: actions-rs/grcov@v0
+        uses: actions-rs/grcov@v0.1
 
   build-docker:
     runs-on: ubuntu-latest
