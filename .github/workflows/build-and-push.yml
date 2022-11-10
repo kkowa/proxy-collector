@@ -21,13 +21,48 @@ on:
       - "**.md"
 
 jobs:
-  build-test-push:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Docker meta
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+
+      - name: Check code formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+
+      - name: Lint code
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests
+          RUSTDOCFLAGS: -Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests
+        with:
+          command: test
+          args: --workspace --all-targets --all-features --no-fail-fast
+
+      - name: Generate coverage report
+        id: coverage
+        uses: actions-rs/grcov@v0
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare Docker image metadata
         id: meta
         uses: docker/metadata-action@v4
         with:
@@ -52,19 +87,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare images
-        uses: docker/bake-action@v2
-        with:
-          targets: app
-          set: |
-            *.cache-from=type=gha
-            *.cache-to=type=gha
-          load: true
-          push: false
-
-      - name: Run checks
-        run: docker compose run -it --rm --user root app -- make ci
 
       - name: Build app image
         uses: docker/build-push-action@v3
