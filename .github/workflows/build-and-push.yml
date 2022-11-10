@@ -35,7 +35,7 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Setup Rust toolchain
+      - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -120,11 +120,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           load: true
 
-      - name: Setup container-structure-test
+      - name: Set up container-structure-test
         run: |
           sudo curl -fsSL -o /usr/bin/container-structure-test https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
           sudo chmod +x /usr/bin/container-structure-test
 
-      - name: Test image structure
+      - name: Test container structure
         run: |
           container-structure-test test --image "${{ steps.build.outputs.imageid }}" --config container-structure-test.yaml
