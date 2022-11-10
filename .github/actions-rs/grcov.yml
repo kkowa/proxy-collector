@@ -1,0 +1,10 @@
+branch: true
+ignore-not-existing: true
+llvm: true
+output-type: cobertura
+output-path: .coverage/coverage.xml
+prefix-dir: /home/user/build/
+ignore:
+  - "/*"
+  - "C:/*"
+  - "../*"
