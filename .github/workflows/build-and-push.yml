@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - update-ci # TODO: For CI update; remove before merge
     tags:
       - v*
     paths-ignore:
@@ -60,12 +61,7 @@ jobs:
           RUSTDOCFLAGS: -Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests
         with:
           command: test
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+          args: --workspace --all-targets --all-features --no-fail-fast
 
       - name: Generate coverage report
         id: coverage
@@ -128,4 +124,4 @@ jobs:
         run: |
           sudo curl -fsSL -o /usr/bin/container-structure-test https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
           sudo chmod +x /usr/bin/container-structure-test
-          container-structure-test test --image "ghcr.io/${{ github.repository }}@${{ steps.build.outputs.imageid }}" --config container-structure-test.yaml
+          container-structure-test test --image "ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}" --config container-structure-test.yaml
