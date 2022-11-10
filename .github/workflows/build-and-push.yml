@@ -40,10 +40,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
-          profile: minimal
-          components: rustfmt, clippy, llvm-tools-preview
-          default: true
-          override: true
 
       - name: Check code formatting
         uses: actions-rs/cargo@v1
