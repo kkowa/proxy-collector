@@ -124,6 +124,6 @@ jobs:
         run: |
           sudo curl -fsSL -o /usr/bin/container-structure-test https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
           sudo chmod +x /usr/bin/container-structure-test
-          image="ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}"
+          image="ghcr.io/${{ github.repository }}@${{ steps.build.outputs.imageid }}"
           docker image pull "${image}"
           container-structure-test test --image "${image}" --config container-structure-test.yaml
