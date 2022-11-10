@@ -120,9 +120,11 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           load: true
 
-      - name: Test image structure
+      - name: Setup container-structure-test
         run: |
           sudo curl -fsSL -o /usr/bin/container-structure-test https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
           sudo chmod +x /usr/bin/container-structure-test
-          image="ghcr.io/${{ github.repository }}@${{ steps.build.outputs.imageid }}"
-          container-structure-test test --image "${image}" --config container-structure-test.yaml
+
+      - name: Test image structure
+        run: |
+          container-structure-test test --image "${{ steps.build.outputs.imageid }}" --config container-structure-test.yaml
