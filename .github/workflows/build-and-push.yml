@@ -123,5 +123,5 @@ jobs:
       - name: Test image structure
         run: |
           sudo curl -fsSL -o /usr/bin/container-structure-test https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
-          chmod +x /usr/bin/container-structure-test
+          sudo chmod +x /usr/bin/container-structure-test
           container-structure-test --image "${{ steps.build.outputs.imageid }}" --config container-structure-tests.yaml
