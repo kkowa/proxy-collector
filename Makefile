@@ -76,21 +76,7 @@ test:  ## Run tests
 
 	split -l1 -d --additional-suffix=.xml .report/raw .report/partial.
 
-	if [ -z "$${CI:-}" ]; then
-		echo 'Generating coverage report in HTML format'
-		grcov . \
-			--llvm \
-			--branch \
-			--source-dir . \
-			--ignore-not-existing \
-			--ignore 'target/*' \
-			--ignore '_generated/*' \
-			--binary-path target/.coverage/debug/ \
-			--output-type html \
-			--output-path .coverage/html/
-	fi
-
-	echo 'Generating coverage report in cobertura XML format'
+	echo 'Generating coverage report in HTML format'
 	grcov . \
 		--llvm \
 		--branch \
@@ -99,8 +85,8 @@ test:  ## Run tests
 		--ignore 'target/*' \
 		--ignore '_generated/*' \
 		--binary-path target/.coverage/debug/ \
-		--output-type cobertura \
-		--output-path .coverage/coverage.xml
+		--output-type html \
+		--output-path .coverage/html/
 .PHONY: test
 
 scan:  ## Run all scans
