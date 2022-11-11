@@ -40,7 +40,6 @@ impl Collector {
                 Some(document) => documents.push(document),
                 None => {
                     debug!("document process returned nothing");
-                    documents.push(json!({}))
                 }
             }
         }
@@ -78,118 +77,93 @@ impl Handler for Collector {
 
 #[cfg(test)]
 mod tests {
-    // use std::str::FromStr;
+    use std::str::FromStr;
 
-    // use anyhow::{Error, Result};
-    // use httpmock::prelude::*;
-    // use kkowa_proxy::http::{StatusCode, Uri};
-    // use rstest::*;
-    // use serde_json::json;
+    use httpmock::prelude::*;
+    use lib::http::{Headers, Method, Request, Response, StatusCode, Uri, Version};
+    use rstest::*;
+    use serde_json::json;
+    use server_openapi::models::CreateDocument;
 
-    // use super::{Processor, Reporter};
+    use super::{Collector, Processor};
 
-    // struct Fixture {
-    //     mock_server: MockServer,
-    //     handler: Reporter,
-    // }
+    struct Fixture {
+        mock_server: MockServer,
+        handler: Collector,
+    }
 
-    // #[fixture]
-    // fn fixture() -> Fixture {
-    //     let mock_server = MockServer::start();
-    //     let handler = Reporter::new(
-    //         Some(Uri::from_str(&mock_server.url("/report")).unwrap()),
-    //         vec![Processor::from_str(include_str!("./donuts-processor.yaml")).unwrap()],
-    //     );
+    #[fixture]
+    fn fixture() -> Fixture {
+        let mock_server = MockServer::start();
+        let handler = Collector::new(
+            Some(Uri::from_str(&mock_server.url("/report")).unwrap()),
+            vec![Processor::from_str(include_str!("./donuts-processor.yaml")).unwrap()],
+        );
 
-    //     Fixture {
-    //         mock_server,
-    //         handler,
-    //     }
-    // }
+        Fixture {
+            mock_server,
+            handler,
+        }
+    }
 
-    // #[rstest]
-    // fn handler_process(fixture: Fixture) {
-    //     let req = Request::new(
-    //         Method::GET,
-    //         Uri::from_static("http://subdomain.domain.com/donuts"),
-    //         Version::HTTP_11,
-    //         Headers::new(),
-    //         vec![],
-    //     );
+    #[rstest]
+    fn handler_process(fixture: Fixture) {
+        let req = Request::new(
+            Method::GET,
+            Uri::from_static("http://subdomain.domain.com/donuts"),
+            Version::HTTP_11,
+            Headers::new(),
+            vec![],
+        );
 
-    //     let resp = Response::new(
-    //         StatusCode::OK,
-    //         Version::HTTP_11,
-    //         Headers::new(),
-    //         include_bytes!("./donuts.json").to_vec(),
-    //         req,
-    //     );
-    //     let report = fixture.handler.process(&resp);
+        let resp = Response::new(
+            StatusCode::OK,
+            Version::HTTP_11,
+            Headers::new(),
+            include_bytes!("./donuts.json").to_vec(),
+            req,
+        );
+        let create_document = fixture.handler.process(&resp);
 
-    //     assert_eq!(
-    //         report,
-    //         json!([
-    //             {
-    //                 "folder": "temp",
-    //                 "data": [
-    //                     {
-    //                         "extracted": {
-    //                             "donutNames": ["Cake", "Raised", "Old Fashioned"]
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         ])
-    //     );
-    // }
+        assert_eq!(
+            create_document,
+            CreateDocument {
+                folder: "temp".to_string(),
+                data: Some(Some(json!([{
+                    "extracted": {
+                        "donutNames": ["Cake", "Raised", "Old Fashioned"]
+                    }
+                }])))
+            }
+        );
+    }
 
-    // #[rstest]
-    // fn handler_process_no_match(fixture: Fixture) {
-    //     let req = Request::new(
-    //         Method::GET,
-    //         Uri::from_static("http://subdomain.domain-idk.com/donuts"),
-    //         Version::HTTP_11,
-    //         Headers::new(),
-    //         vec![],
-    //     );
+    #[rstest]
+    fn handler_process_no_match(fixture: Fixture) {
+        let req = Request::new(
+            Method::GET,
+            Uri::from_static("http://subdomain.domain-idk.com/donuts"),
+            Version::HTTP_11,
+            Headers::new(),
+            vec![],
+        );
 
-    //     let resp = Response::new(
-    //         StatusCode::OK,
-    //         Version::HTTP_11,
-    //         Headers::new(),
-    //         include_bytes!("./donuts.json").to_vec(),
-    //         req,
-    //     );
+        let resp = Response::new(
+            StatusCode::OK,
+            Version::HTTP_11,
+            Headers::new(),
+            include_bytes!("./donuts.json").to_vec(),
+            req,
+        );
 
-    //     let report = fixture.handler.process(&resp);
+        let create_document = fixture.handler.process(&resp);
 
-    //     assert_eq!(
-    //         report,
-    //         json!([
-    //             {
-    //                 "folder": "temp",
-    //                 "data": []
-    //             }
-    //         ])
-    //     );
-    // }
-
-    // #[rstest]
-    // #[tokio::test]
-    // async fn handler_send(fixture: Fixture) -> Result<(), Error> {
-    //     let m = fixture.mock_server.mock(|when, then| {
-    //         when.method("POST").path("/report");
-    //         then.status(200);
-    //     });
-    //     let resp = fixture
-    //         .handler
-    //         .send(String::new(), json!([{"helloWorld": "Good Evening"}]))
-    //         .unwrap()
-    //         .await??;
-
-    //     m.assert();
-    //     assert_eq!(resp.status(), StatusCode::OK);
-
-    //     Ok(())
-    // }
+        assert_eq!(
+            create_document,
+            CreateDocument {
+                folder: "temp".to_string(),
+                data: Some(Some(json!([])))
+            }
+        );
+    }
 }
