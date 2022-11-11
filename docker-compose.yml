@@ -15,8 +15,6 @@ services:
       - rstarget:/var/app/target
     environment:
       RUST_BACKTRACE: 1
-
-      ECHO_SERVER_HOST: echo
     ports:
       - 1080:1080
       - 8080:8080
