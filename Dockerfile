@@ -1,12 +1,13 @@
 # =============================================================================
 # Core: Build
 # =============================================================================
-ARG RUST_VERSION="1.64"
+
+ARG RUST_NIGHTLY_VERSION="2022-11-09"
 
 # Application directory
 ARG APP_HOME="/var/app"
 
-FROM lukemathwalker/cargo-chef:latest-rust-${RUST_VERSION}-slim-bullseye AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-slim-bullseye AS chef
 
 WORKDIR /tmp/build
 
@@ -78,6 +79,7 @@ CMD ["start.sh"]
 # =============================================================================
 FROM base AS development
 
+ARG RUST_NIGHTLY_VERSION
 ARG APP_HOME
 
 ARG OPENAPI_GENERATOR_CLI_VERSION="6.2.1"
@@ -112,7 +114,7 @@ RUN pip3 install --no-cache-dir pre-commit
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- \
     -y \
-    --default-toolchain nightly \
+    --default-toolchain "nightly-${RUST_NIGHTLY_VERSION}" \
     --profile minimal \
     --component rustfmt \
     --component clippy \
