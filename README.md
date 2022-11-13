@@ -6,7 +6,7 @@ Man-in-the-middle proxy component for data collection for kkowa. Currently this 
 
 - **Language** Rust Nightly
 
-- **Framework** None
+- **Framework** [hyper](https://hyper.rs/)
 
 - **CI·CD** GitHub Actions
 
