@@ -6,7 +6,7 @@ mod collector;
 use std::{net::SocketAddr, path::PathBuf};
 
 use clap::Parser;
-use lib::{http::Uri, Proxy, Web};
+use kkowa_proxy_lib::{http::Uri, Proxy, Web};
 use tracing::{debug, error, info, warn, Level};
 
 use self::collector::{Collector, Processor};

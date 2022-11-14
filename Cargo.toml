@@ -1,16 +1,8 @@
 [package]
-name = "kkowa-proxy"
+name = "kkowa-proxy-collector"
 version = "0.1.0"
 edition = "2021"
-
-[workspace]
-
-[workspace.package]
 authors = ["Yuchan Lee <lasuillard@gmail.com>"]
-
-[[bin]]
-name = "proxy"
-path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0"
@@ -23,8 +15,8 @@ http-serde = "1.1"
 hyper = { version = "0.14", features = ["full"] }
 json_dotpath = "1.1"
 jsonpath_lib = "0.3"
+kkowa-proxy-lib = { git = "https://github.com/kkowa/proxy-lib", branch = "main" }
 lazy_static = "1.4"
-lib = { path = "lib" }
 portpicker = "0.1"
 prometheus = "0.13"
 regex = "1.6"

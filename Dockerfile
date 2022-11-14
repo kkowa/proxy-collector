@@ -138,7 +138,7 @@ RUN mkdir --parents /tmp/cargo-watch \
 
 # NOTE: Do not copy from build at base stage as it invalidates layers in development
 #       when new build created, increasing overall build time.
-COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/proxy /usr/local/bin/app
+COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
 COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/
@@ -153,7 +153,7 @@ USER worker:worker
 # =============================================================================
 FROM base AS production
 
-COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/proxy /usr/local/bin/app
+COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
 COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/

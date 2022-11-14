@@ -2,8 +2,8 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
-use lib::{auth::{Authenticator, Credentials},
-          http::Uri};
+use kkowa_proxy_lib::{auth::{Authenticator, Credentials},
+                      http::Uri};
 use server_openapi::apis::{configuration::Configuration, users_api::users_me_api_users_me_get};
 use tracing::{debug, trace};
 
@@ -20,14 +20,17 @@ impl ServerAuth {
 
 #[async_trait]
 impl Authenticator for ServerAuth {
-    async fn authenticate(&self, credentials: &Credentials) -> Result<(), lib::auth::Error> {
+    async fn authenticate(
+        &self,
+        credentials: &Credentials,
+    ) -> Result<(), kkowa_proxy_lib::auth::Error> {
         if let Some(u) = &self.uri {
             if credentials.scheme().to_lowercase() != "bearer" {
                 trace!(
                     "scheme expected \"bearer\" but got \"{got}\"",
                     got = credentials.scheme()
                 );
-                return Err(lib::auth::Error::InvalidScheme {
+                return Err(kkowa_proxy_lib::auth::Error::InvalidScheme {
                     got: credentials.scheme().to_string(),
                     expect: "bearer".to_string(),
                 });
@@ -51,7 +54,7 @@ impl Authenticator for ServerAuth {
             }
         }
 
-        Err(lib::auth::Error::NotAuthenticated)
+        Err(kkowa_proxy_lib::auth::Error::NotAuthenticated)
     }
 }
 
