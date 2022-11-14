@@ -19,6 +19,8 @@ tokio = { version = "1.20", features = ["full"] }
 tracing = "0.1"
 
 [dev-dependencies]
-anyhow = "*"
+anyhow = "1.0"
 httpmock = "0.6"
+hyper-proxy = "0.9"
+portpicker = "0.1"
 rstest = "0.15"
