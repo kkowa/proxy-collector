@@ -1,10 +1,16 @@
+use derive_builder::Builder;
+
 use super::{HeaderName, HeaderValue, Headers, Payload, Request, StatusCode, Version};
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Builder)]
+#[builder(default)]
 pub struct Response {
     pub status: StatusCode,
     pub version: Version,
+
+    #[builder(setter(custom))]
     pub headers: Headers,
+
     pub payload: Payload,
 
     /// Source request to current response.
@@ -32,8 +38,8 @@ impl Response {
         }
     }
 
-    pub fn builder() -> Builder {
-        Builder::new()
+    pub fn builder() -> ResponseBuilder {
+        ResponseBuilder::default()
     }
 
     pub async fn from<R>(resp: hyper::Response<hyper::body::Body>, request: R) -> Self
@@ -67,60 +73,19 @@ impl From<Response> for hyper::Response<hyper::Body> {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct Builder {
-    pub status: StatusCode,
-    pub version: Version,
-    pub headers: Headers,
-    pub payload: Payload,
-
-    /// Source request to current response.
-    pub request: Request,
-}
-
-impl Builder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn status(mut self, status: StatusCode) -> Self {
-        self.status = status;
+impl ResponseBuilder {
+    pub fn header(&mut self, key: HeaderName, value: HeaderValue) -> &mut Self {
+        self.headers
+            .get_or_insert_with(Headers::default)
+            .insert(key, value);
         self
     }
 
-    pub fn version(mut self, version: Version) -> Self {
-        self.version = version;
+    pub fn headers(&mut self, headers: Headers) -> &mut Self {
+        self.headers
+            .get_or_insert_with(Headers::default)
+            .extend(headers);
         self
-    }
-
-    pub fn header(mut self, key: HeaderName, value: HeaderValue) -> Self {
-        self.headers.insert(key, value);
-        self
-    }
-
-    pub fn headers(mut self, headers: Headers) -> Self {
-        self.headers.extend(headers);
-        self
-    }
-
-    pub fn payload(mut self, payload: Payload) -> Self {
-        self.payload = payload;
-        self
-    }
-
-    pub fn request(mut self, request: Request) -> Self {
-        self.request = request;
-        self
-    }
-
-    pub fn build(self) -> Response {
-        Response::new(
-            self.status,
-            self.version,
-            self.headers,
-            self.payload,
-            self.request,
-        )
     }
 }
 

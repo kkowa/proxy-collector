@@ -9,3 +9,5 @@ ignore:
   - C:/*
   - ../*
   - _generated/*
+  - examples/*
+  - tests/*

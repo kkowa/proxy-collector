@@ -123,15 +123,45 @@ impl Authenticator for HTTPBearer {
 
 #[cfg(test)]
 mod tests {
-    use super::{Credentials, HTTPBasic, HTTPBearer};
+    use super::{Credentials, Error, HTTPBasic, HTTPBearer};
     use crate::auth::Authenticator;
 
     #[tokio::test]
     async fn httpbasic() {
         assert!(HTTPBasic::new("username", "password")
-            .authenticate(&Credentials::new("Basic", "dXNlcm5hbWU6cGFzc3dvcmQ="))
+            .authenticate(&Credentials::new("Basic", "dXNlcm5hbWU6cGFzc3dvcmQ=")) // username:password
             .await
             .is_ok());
+    }
+
+    #[tokio::test]
+    async fn httpbasic_invalid_scheme() {
+        assert!(matches!(
+            HTTPBasic::new("username", "password")
+                .authenticate(&Credentials::new("Base", "dXNlcm5hbWU6cGFzc3dvcmQ=")) // username:password
+                .await,
+            Err(Error::InvalidScheme { .. }) // FIXME: Can't try match using string types
+        ));
+    }
+
+    #[tokio::test]
+    async fn httpbasic_invalid_format() {
+        assert!(matches!(
+            HTTPBasic::new("username", "password")
+                .authenticate(&Credentials::new("Basic", "b25lOnR3bzp0aHJlZQ==")) // one:two:three
+                .await,
+            Err(Error::InvalidFormat { n: 3 })
+        ));
+    }
+
+    #[tokio::test]
+    async fn httpbasic_unauthenticated() {
+        assert!(matches!(
+            HTTPBasic::new("username", "password")
+                .authenticate(&Credentials::new("Basic", "cGFzc3dvcmQ6dXNlcm5hbWU=")) // password:username
+                .await,
+            Err(Error::NotAuthenticated)
+        ));
     }
 
     #[tokio::test]
@@ -140,5 +170,25 @@ mod tests {
             .authenticate(&Credentials::new("Bearer", "token"))
             .await
             .is_ok());
+    }
+
+    #[tokio::test]
+    async fn httpbearer_invalid_scheme() {
+        assert!(matches!(
+            HTTPBearer::new("token")
+                .authenticate(&Credentials::new("Token", "token"))
+                .await,
+            Err(Error::InvalidScheme { .. }) // FIXME: Can't try match using string types
+        ));
+    }
+
+    #[tokio::test]
+    async fn httpbearer_unauthenticated() {
+        assert!(matches!(
+            HTTPBearer::new("token")
+                .authenticate(&Credentials::new("Bearer", "nekot"))
+                .await,
+            Err(Error::NotAuthenticated)
+        ));
     }
 }
