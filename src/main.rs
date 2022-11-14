@@ -134,7 +134,7 @@ async fn main() {
     let proxy = Proxy::new(
         "proxy",
         Client::default(),
-        vec![Box::new(self::auth::ServerAuth::new(
+        vec![Box::new(self::auth::Delegator::new(
             config.server.clone().map(|u| {
                 Uri::builder()
                     .scheme(u.scheme_str().unwrap())

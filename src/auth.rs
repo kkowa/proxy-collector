@@ -8,18 +8,18 @@ use server_openapi::apis::{configuration::Configuration, users_api::users_me_api
 use tracing::{debug, trace};
 
 #[derive(Debug)]
-pub struct ServerAuth {
+pub struct Delegator {
     uri: Option<Uri>,
 }
 
-impl ServerAuth {
+impl Delegator {
     pub fn new(uri: Option<Uri>) -> Self {
         Self { uri }
     }
 }
 
 #[async_trait]
-impl Authenticator for ServerAuth {
+impl Authenticator for Delegator {
     async fn authenticate(
         &self,
         credentials: &Credentials,
