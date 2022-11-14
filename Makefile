@@ -84,6 +84,8 @@ test:  ## Run tests
 		--ignore-not-existing \
 		--ignore 'target/*' \
 		--ignore '_generated/*' \
+		--ignore 'examples/*' \
+		--ignore 'tests/*' \
 		--binary-path target/.coverage/debug/ \
 		--output-type html \
 		--output-path .coverage/html/
