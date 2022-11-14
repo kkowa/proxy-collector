@@ -1,6 +1,6 @@
-# kkowa/proxy
+# proxy-collector
 
-Man-in-the-middle proxy component for data collection for kkowa. Currently this project has no name.
+Man-in-the-middle proxy component for data collection for kkowa.
 
 ## 🧰 Tech Stack
 
