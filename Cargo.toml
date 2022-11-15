@@ -10,6 +10,7 @@ async-std = "1.12"
 async-trait = "0.1"
 base64 = "0.13"
 clap = { version = "4.0", features = ["derive", "env"] }
+env_logger = "0.9"
 http = "0.2"
 http-serde = "1.1"
 hyper = { version = "0.14", features = ["full"] }
@@ -17,8 +18,10 @@ json_dotpath = "1.1"
 jsonpath_lib = "0.3"
 kkowa-proxy-lib = { git = "https://github.com/kkowa/proxy-lib", branch = "main" }
 lazy_static = "1.4"
+log = "0.4"
+metrics-exporter-prometheus = "0.11"
+once_cell = "1.16"
 portpicker = "0.1"
-prometheus = "0.13"
 regex = "1.6"
 rustls = { version = "0.20", features = ["dangerous_configuration"] }
 serde = { version = "1.0", features = ["derive"] }
