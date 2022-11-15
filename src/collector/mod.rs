@@ -3,8 +3,8 @@
 mod processor;
 
 use async_trait::async_trait;
-use lib::{http::{Response, Uri},
-          proxy::{Flow, Handler, Reverse}};
+use kkowa_proxy_lib::{http::{Response, Uri},
+                      proxy::{Flow, Handler, Reverse}};
 use serde_json::json;
 use server_openapi::{apis::{configuration::Configuration,
                             documents_api::create_documents_api_documents_post},
@@ -80,7 +80,7 @@ mod tests {
     use std::str::FromStr;
 
     use httpmock::prelude::*;
-    use lib::http::{Headers, Method, Request, Response, StatusCode, Uri, Version};
+    use kkowa_proxy_lib::http::{Headers, Method, Request, Response, StatusCode, Uri, Version};
     use rstest::*;
     use serde_json::json;
     use server_openapi::models::CreateDocument;

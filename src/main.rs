@@ -1,15 +1,14 @@
 //! Main binary for use by kkowa application system.
 
-mod auth;
-mod collector;
-
 use std::{net::SocketAddr, path::PathBuf};
 
 use clap::Parser;
-use lib::{http::Uri, Proxy, Web};
-use tracing::{debug, error, info, warn, Level};
-
-use self::collector::{Collector, Processor};
+use kkowa_proxy_collector::{auth::Delegator,
+                            collector::{Collector, Processor},
+                            init_logging, init_metrics, init_tracing,
+                            web::Web};
+use kkowa_proxy_lib::{http::Uri, Proxy};
+use tracing::Level;
 
 macro_rules! arg_env {
     ($name:literal) => {
@@ -52,18 +51,12 @@ struct Config {
     processor: Option<PathBuf>,
 }
 
-pub fn init_tracing(max_level: Level) {
-    let subscriber = tracing_subscriber::fmt().with_max_level(max_level).finish();
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("failed to set global default tracing subscriber");
-
-    info!("initialized tracing with max level `{max_level}`");
-}
-
 #[tokio::main]
 async fn main() {
     // Parse CLI args
     let config = Config::parse();
+
+    init_logging();
 
     // Initialize tracing
     let level = match config.verbosity.to_lowercase().as_ref() {
@@ -75,6 +68,9 @@ async fn main() {
     };
     init_tracing(level);
 
+    // Initialize metrics
+    init_metrics();
+
     // Load processor(s)
     let processor_defs = match config.processor {
         Some(path) => {
@@ -83,7 +79,7 @@ async fn main() {
             }
 
             if path.is_dir() {
-                debug!("looking for processor defs from directory {path:?}");
+                log::debug!("looking for processor defs from directory {path:?}");
                 let entries = path
                     .read_dir()
                     .expect("failed to read directory")
@@ -100,7 +96,7 @@ async fn main() {
                     })
                     .collect()
             } else {
-                debug!("specified processor path is single file: {path:?}");
+                log::debug!("specified processor path is single file: {path:?}");
 
                 vec![path]
             }
@@ -115,11 +111,11 @@ async fn main() {
 
     let processors = processor_defs
         .into_iter()
-        .inspect(|p| debug!("loading processor def {p:?}"))
+        .inspect(|p| log::debug!("loading processor def {p:?}"))
         .map(|p| Processor::from_file(p).expect("failed to load file {path} as processor"))
         .collect();
 
-    debug!("loaded processors: {processors:?}");
+    log::debug!("loaded processors: {processors:?}");
 
     // Run app
     let proxy_addr: SocketAddr = format!("{}:{}", config.host, config.port)
@@ -134,16 +130,14 @@ async fn main() {
     let proxy = Proxy::new(
         "proxy",
         Client::default(),
-        vec![Box::new(self::auth::ServerAuth::new(
-            config.server.clone().map(|u| {
-                Uri::builder()
-                    .scheme(u.scheme_str().unwrap())
-                    .authority(u.authority().unwrap().to_string())
-                    .path_and_query("")
-                    .build()
-                    .unwrap()
-            }),
-        ))],
+        vec![Box::new(Delegator::new(config.server.clone().map(|u| {
+            Uri::builder()
+                .scheme(u.scheme_str().unwrap())
+                .authority(u.authority().unwrap().to_string())
+                .path_and_query("")
+                .build()
+                .unwrap()
+        })))],
         vec![Box::new(Collector::new(
             config.server.clone().map(|u| {
                 Uri::builder()
@@ -159,10 +153,10 @@ async fn main() {
 
     let web = Web::new();
 
-    warn!("proxy listening on {}", proxy_addr);
-    warn!("web listening on {}", web_addr);
+    log::warn!("proxy listening on {}", proxy_addr);
+    log::warn!("web listening on {}", web_addr);
     if let Err(e) = tokio::try_join!(proxy.run(&proxy_addr), web.run(&web_addr)) {
-        error!("error occurred from server: {e}");
+        log::error!("error occurred from server: {e}");
     }
 }
 

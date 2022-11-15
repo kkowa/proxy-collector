@@ -1,5 +1,5 @@
 {
-  "name": "kkowa/proxy",
+  "name": "kkowa/proxy-collector",
   "dockerComposeFile": [
     "../docker-compose.yml",
     "./override.yml"

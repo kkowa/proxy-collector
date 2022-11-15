@@ -1,16 +1,8 @@
 [package]
-name = "kkowa-proxy"
+name = "kkowa-proxy-collector"
 version = "0.1.0"
 edition = "2021"
-
-[workspace]
-
-[workspace.package]
 authors = ["Yuchan Lee <lasuillard@gmail.com>"]
-
-[[bin]]
-name = "proxy"
-path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0"
@@ -18,15 +10,18 @@ async-std = "1.12"
 async-trait = "0.1"
 base64 = "0.13"
 clap = { version = "4.0", features = ["derive", "env"] }
+env_logger = "0.9"
 http = "0.2"
 http-serde = "1.1"
 hyper = { version = "0.14", features = ["full"] }
 json_dotpath = "1.1"
 jsonpath_lib = "0.3"
+kkowa-proxy-lib = { git = "https://github.com/kkowa/proxy-lib", branch = "main" }
 lazy_static = "1.4"
-lib = { path = "lib" }
+log = "0.4"
+metrics-exporter-prometheus = "0.11"
+once_cell = "1.16"
 portpicker = "0.1"
-prometheus = "0.13"
 regex = "1.6"
 rustls = { version = "0.20", features = ["dangerous_configuration"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -41,7 +36,7 @@ tracing = "0.1"
 tracing-subscriber = "0.3"
 
 [dev-dependencies]
-async-http-proxy = { version = "1.2", features = ["runtime-tokio"] }
+assert_cmd = "2.0"
 futures = "0.3"
 httpmock = "0.6"
 reqwest = "0.11"
