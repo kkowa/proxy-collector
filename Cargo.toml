@@ -10,7 +10,7 @@ async-std = "1.12"
 async-trait = "0.1"
 base64 = "0.13"
 clap = { version = "4.0", features = ["derive", "env"] }
-env_logger = "0.9"
+env_logger = "0.10"
 http = "0.2"
 http-serde = "1.1"
 hyper = { version = "0.14", features = ["full"] }
