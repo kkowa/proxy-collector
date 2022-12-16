@@ -1333,7 +1333,7 @@ dependencies = [
 [[package]]
 name = "kkowa-proxy-lib"
 version = "0.1.0"
-source = "git+https://github.com/kkowa/proxy-lib?branch=main#ecceabc1a45251a25e96e6f5f661f55945d6c5cb"
+source = "git+https://github.com/kkowa/proxy-lib?branch=main#f696cc1eaa096ed6369a584be6ee5301315929b3"
 dependencies = [
  "async-std",
  "async-trait",
