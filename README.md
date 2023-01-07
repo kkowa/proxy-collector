@@ -1,6 +1,6 @@
 # proxy-collector
 
-[![Build and Push](https://github.com/kkowa/proxy-collector/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/kkowa/proxy-collector/actions/workflows/build-and-push.yml)
+[![CI](https://github.com/kkowa/proxy-collector/actions/workflows/ci.yml/badge.svg)](https://github.com/kkowa/proxy-collector/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/kkowa/proxy-collector/branch/main/graph/badge.svg?token=5YZYC7HKQ9)](https://codecov.io/gh/kkowa/proxy-collector)
 
 Man-in-the-middle proxy component for data collection for kkowa.
