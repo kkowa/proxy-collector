@@ -1,7 +1,6 @@
 # =============================================================================
 # Core: Build
 # =============================================================================
-
 ARG RUST_NIGHTLY_VERSION="2022-11-09"
 
 # Application directory
@@ -72,7 +71,7 @@ HEALTHCHECK --interval=15s --timeout=2s --start-period=3s --retries=5 \
     CMD ["curl", "-fsSL", "localhost:8080/ht"]
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["start.sh"]
+CMD ["app"]
 
 # =============================================================================
 # Environment: Development
@@ -141,7 +140,7 @@ RUN mkdir --parents /tmp/cargo-watch \
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
-COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/
+COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh ./scripts/start.sh /usr/local/bin/
 
 # Create and grant permission for target directory as there is no original to preserve permission from.
 RUN mkdir "${APP_HOME}/target" && chown worker:worker "${APP_HOME}/target"
@@ -156,6 +155,6 @@ FROM base AS production
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
-COPY --chown=worker:worker --chmod=755 ./scripts/* /usr/local/bin/
+COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh ./scripts/start.sh /usr/local/bin/
 
 USER worker:worker
