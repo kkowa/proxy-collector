@@ -140,7 +140,7 @@ RUN mkdir --parents /tmp/cargo-watch \
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
-COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh ./scripts/start.sh /usr/local/bin/
+COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh /usr/local/bin/
 
 # Create and grant permission for target directory as there is no original to preserve permission from.
 RUN mkdir "${APP_HOME}/target" && chown worker:worker "${APP_HOME}/target"
@@ -155,6 +155,6 @@ FROM base AS production
 COPY --from=build --chown=worker:worker --chmod=755 /tmp/build/target/release/kkowa-proxy-collector /usr/local/bin/app
 
 # Copy script files to executable path
-COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh ./scripts/start.sh /usr/local/bin/
+COPY --chown=worker:worker --chmod=755 ./scripts/docker-entrypoint.sh /usr/local/bin/
 
 USER worker:worker
