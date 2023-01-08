@@ -25,7 +25,7 @@ fileContentTests: []
 metadataTest:
   exposedPorts: ["1080", "8080"]
   entrypoint: ["docker-entrypoint.sh"]
-  cmd: ["start.sh"]
+  cmd: ["app"]
   workdir: "/var/app"
   user: worker:worker
 
